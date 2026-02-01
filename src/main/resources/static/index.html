@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Bourn Stores </title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+
+            /* Background image */
+            background-image: url('./images/img.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        /* Dark overlay for better readability */
+
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        h2, h3 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+        }
+
+        .form-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 150px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Stock Manager</h2>
+
+    <!-- Product Table -->
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Stock</th>
+        </tr>
+        </thead>
+        <tbody id="productTable"></tbody>
+    </table>
+
+    <!-- Add Purchase -->
+    <div class="form-section">
+        <h3>Add Purchase</h3>
+        <input type="number" id="purchaseProductId" placeholder="Product ID">
+        <input type="number" id="purchaseQty" placeholder="Quantity">
+        <button onclick="addPurchase()">Add</button>
+    </div>
+
+    <!-- Record Sale -->
+    <div class="form-section">
+        <h3>Record Sale</h3>
+        <input type="number" id="saleProductId" placeholder="Product ID">
+        <input type="number" id="saleQty" placeholder="Quantity">
+        <input type="text" id="saleSource" placeholder="Source">
+        <button onclick="recordSale()">Sell</button>
+    </div>
+</div>
+
+<script>
+    const BASE_URL = "http://localhost:8080/api";
+
+    function loadProducts() {
+        fetch(`${BASE_URL}/products`)
+            .then(response => response.json())
+            .then(data => {
+                const table = document.getElementById("productTable");
+                table.innerHTML = "";
+                data.forEach(p => {
+                    table.innerHTML += `
+                        <tr>
+                            <td>${p.id}</td>
+                            <td>${p.name}</td>
+                            <td>${p.stockQuantity}</td>
+                        </tr>
+                    `;
+                });
+            });
+    }
+
+    function addPurchase() {
+        fetch(`${BASE_URL}/purchase`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                productId: document.getElementById("purchaseProductId").value,
+                quantity: document.getElementById("purchaseQty").value
+            })
+        }).then(() => loadProducts());
+    }
+
+    function recordSale() {
+        fetch(`${BASE_URL}/sale`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                productId: document.getElementById("saleProductId").value,
+                quantity: document.getElementById("saleQty").value,
+                source: document.getElementById("saleSource").value
+            })
+        }).then(() => loadProducts());
+    }
+
+    loadProducts();
+</script>
+
+</body>
+</html>
